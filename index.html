@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>🐠 Подводно Дишане - Инструкции</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; cursor: none; }
+        
+        #ocean {
+            width: 100vw; height: 100vh;
+            background: url('fon.jpg') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* Мехурче с инструкции */
+        #bubble-timer {
+            position: absolute; top: 40px; left: 40px;
+            width: 180px; height: 180px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 4px solid white; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            color: white; font-family: 'Arial Rounded MT Bold', sans-serif;
+            font-weight: bold; z-index: 500; box-shadow: 0 0 30px rgba(255,255,255,0.6);
+            backdrop-filter: blur(5px);
+            text-align: center; font-size: 28px;
+            transition: all 0.5s ease;
+        }
+
+        #fish {
+            position: absolute; width: 320px; height: auto;
+            left: 50%; transform: translateX(-50%);
+            z-index: 100; pointer-events: none;
+        }
+
+        #start-mask {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 20, 30, 0.9); color: white; z-index: 1000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; text-align: center; font-family: sans-serif;
+        }
+
+        h1 { font-size: 48px; color: #90e0ef; }
+    </style>
+</head>
+<body>
+
+<div id="start-mask">
+    <h1>🐠 МОРСКО ДИШАНЕ</h1>
+    <p>Кликни тук, за да започнеш.<br>Следвай инструкциите в мехурчето.</p>
+</div>
+
+<div id="ocean">
+    <div id="bubble-timer">ПОДГОТОВКА</div>
+    <img id="fish" src="fish.png">
+</div>
+
+<audio id="music" loop src="fish_music.mp3"></audio>
+
+<script>
+    const fish = document.getElementById('fish');
+    const instructionBox = document.getElementById('bubble-timer');
+    const music = document.getElementById('music');
+    const mask = document.getElementById('start-mask');
+
+    let targetY = window.innerHeight * 0.8;
+    let currentY = window.innerHeight * 0.8;
+    
+    // Инструкциите в цикъл
+    const steps = ["ВДИШАЙ", "ЗАДРЪЖ", "ИЗДИШАЙ", "ЗАДРЪЖ"];
+    let currentStep = 0;
+
+    mask.onclick = () => {
+        mask.style.display = 'none';
+        music.play();
+        
+        // Смяна на надписите на всеки 4 секунди
+        setInterval(() => {
+            currentStep = (currentStep + 1) % steps.length;
+            instructionBox.textContent = steps[currentStep];
+            
+            // Малък визуален ефект при смяна
+            instructionBox.style.transform = "scale(1.1)";
+            setTimeout(() => instructionBox.style.transform = "scale(1)", 200);
+        }, 4000); // 4000 милисекунди = 4 секунди
+
+        instructionBox.textContent = steps[0];
+        requestAnimationFrame(smoothMove);
+    };
+
+    window.addEventListener('mousemove', (e) => { targetY = e.clientY; });
+    window.addEventListener('touchmove', (e) => {
+        targetY = e.touches[0].clientY;
+        e.preventDefault();
+    }, { passive: false });
+
+    function smoothMove() {
+        let safeY = Math.max(150, Math.min(window.innerHeight - 150, targetY));
+        currentY += (safeY - currentY) * 0.12; 
+        
+        fish.style.top = (currentY - 160) + 'px';
+
+        let scale = 1.4 - (currentY / window.innerHeight * 0.6);
+        fish.style.transform = `translateX(-50%) scale(${scale})`;
+
+        requestAnimationFrame(smoothMove);
+    }
+</script>
+</body>
+</html>
